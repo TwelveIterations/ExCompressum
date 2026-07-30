@@ -42,7 +42,7 @@
     "excompressum.mixins.json"
   ],
   "depends": {
-    "balm-fabric": ">=7.0.0",
+    "balm": ">=7.0.0",
     "fabricloader": ">=0.14.21",
     "fabric": "*",
     "minecraft": ">=1.20",
