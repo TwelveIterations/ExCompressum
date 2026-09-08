@@ -214,7 +214,7 @@ publishing {
             artifactId = mod_id + "-forge"
             version = project.version + (!project.version.endsWith("SNAPSHOT") ? "+" + minecraft_version : "")
 
-            artifact jar
+            artifact reobfJar
         }
     }
 
@@ -249,7 +249,7 @@ modrinth {
     projectId = project.modrinth_project_id
     versionType = project.release_type
     versionNumber = project.version + "+forge-" + project.minecraft_version
-    uploadFile = jar
+    uploadFile = reobfJar
     changelog = rootProject.file("CHANGELOG.md").text
     gameVersions = project.minecraft_versions.split(',').toList()
     syncBodyFrom = rootProject.file("modrinth.md").text
