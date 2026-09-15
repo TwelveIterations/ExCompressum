@@ -1,9 +1,9 @@
 package net.blay09.mods.excompressum.block;
 
-import net.blay09.mods.balm.Balm;
 import net.blay09.mods.balm.world.ContainerUtils;
 import net.blay09.mods.excompressum.block.entity.ModBlockEntities;
 import net.blay09.mods.excompressum.block.entity.WoodenCrucibleBlockEntity;
+import net.blay09.mods.excompressum.util.FluidInteractions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -79,7 +79,9 @@ public class WoodenCrucibleBlock extends BaseEntityBlock {
             }
         }
 
-        Balm.hooks().useFluidTank(state, level, pos, player, hand, blockHitResult);
+        if (FluidInteractions.tryInteractWithWaterTank(woodenCrucible.getFluidTank(), itemStack, level, pos, player, hand)) {
+            return InteractionResult.SUCCESS;
+        }
 
         return super.useItemOn(itemStack, state, level, pos, player, hand, blockHitResult);
     }
