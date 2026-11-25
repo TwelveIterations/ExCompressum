@@ -22,7 +22,8 @@ public class FluidBucketInteraction {
         }
 
         boolean draining = heldItem.is(Items.BUCKET);
-        ItemStack result = draining ? new ItemStack(fluid.getBucket()) : Balm.hooks().getCraftingRemainingItem(heldItem).create();
+        final var remainingItem = Balm.hooks().getCraftingRemainingItem(heldItem);
+        ItemStack result = draining ? new ItemStack(fluid.getBucket()) : remainingItem != null ? remainingItem.create() : ItemStack.EMPTY;
         if (result.isEmpty()) {
             return false;
         }
