@@ -1,5 +1,8 @@
 package net.blay09.mods.excompressum.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.blay09.mods.excompressum.FluidBucketInteraction;
 import net.blay09.mods.balm.world.ContainerUtils;
 import net.blay09.mods.excompressum.block.entity.ModBlockEntities;
 import net.blay09.mods.excompressum.block.entity.WoodenCrucibleBlockEntity;
@@ -79,7 +82,7 @@ public class WoodenCrucibleBlock extends BaseEntityBlock {
             }
         }
 
-        if (FluidInteractions.tryInteractWithWaterTank(woodenCrucible.getFluidTank(), itemStack, level, pos, player, hand)) {
+        if (FluidBucketInteraction.use(woodenCrucible.getFluidTank(), player, hand)) {
             return InteractionResult.SUCCESS;
         }
 
