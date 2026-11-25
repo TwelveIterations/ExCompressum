@@ -5,9 +5,8 @@ import net.blay09.mods.balm.api.container.ImplementedContainer;
 import net.blay09.mods.balm.api.fluid.BalmFluidTankProvider;
 import net.blay09.mods.balm.api.fluid.FluidTank;
 import net.blay09.mods.balm.common.BalmBlockEntity;
-import net.blay09.mods.excompressum.api.ExNihiloProvider;
+import net.blay09.mods.excompressum.FluidUnits;
 import net.blay09.mods.excompressum.config.ExCompressumConfig;
-import net.blay09.mods.excompressum.registry.ExNihilo;
 import net.blay09.mods.excompressum.registry.ExRegistries;
 import net.blay09.mods.excompressum.registry.woodencrucible.WoodenCrucibleRecipe;
 import net.blay09.mods.excompressum.tag.ModItemTags;
@@ -34,12 +33,12 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
-    private final FluidTank fluidTank = new FluidTank(1999) {
+    private final FluidTank fluidTank = new FluidTank(1999 * FluidUnits.MILLIBUCKET) {
         @Override
         public int fill(Fluid fluid, int maxFill, boolean simulate) {
             int result = super.fill(fluid, maxFill, simulate);
-            if (getAmount() > 1000) {
-                setAmount(1000);
+            if (getAmount() > FluidUnits.BUCKET) {
+                setAmount(FluidUnits.BUCKET);
             }
             return result;
         }
@@ -51,7 +50,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
 
         @Override
         public int getCapacity() {
-            return 1000;
+            return FluidUnits.BUCKET;
         }
 
         @Override
@@ -78,7 +77,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
 
     public boolean addItem(ItemStack itemStack, boolean isAutomated, boolean simulate) {
         // When inserting dust, turn it into clay if we have enough liquid
-        if (fluidTank.getAmount() >= 1000 && itemStack.is(ModItemTags.DUSTS)) {
+        if (fluidTank.getAmount() >= FluidUnits.BUCKET && itemStack.is(ModItemTags.DUSTS)) {
             if (!simulate) {
                 items.set(0, new ItemStack(Blocks.CLAY));
                 fluidTank.setFluid(Fluids.EMPTY, 0);
@@ -91,7 +90,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
         WoodenCrucibleRecipe recipe = ExRegistries.getWoodenCrucibleRegistry().getRecipe(level, itemStack);
         if (recipe != null) {
             if (fluidTank.isEmpty() || recipe.matchesFluid(fluidTank.getFluid())) {
-                int capacityLeft = fluidTank.getCapacity() - fluidTank.getAmount() - solidVolume;
+                int capacityLeft = FluidUnits.toMillibuckets(fluidTank.getCapacity() - fluidTank.getAmount()) - solidVolume;
                 if ((isAutomated && capacityLeft >= recipe.getAmount()) || (!isAutomated && capacityLeft > 0)) {
                     if (!simulate) {
                         currentTargetFluid = recipe.getFluid();
@@ -114,7 +113,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
         if (level.getLevelData().isRaining() && level.canSeeSkyFromBelowWater(worldPosition) && level.getBiome(worldPosition).value().hasPrecipitation()) {
             ticksSinceRain++;
             if (ticksSinceRain >= RAIN_FILL_INTERVAL) {
-                fluidTank.fill(Fluids.WATER, RAIN_FILL_SPEED, false);
+                fluidTank.fill(Fluids.WATER, RAIN_FILL_SPEED * FluidUnits.MILLIBUCKET, false);
                 ticksSinceRain = 0;
             }
         }
@@ -124,7 +123,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
             ticksSinceMelt++;
             if (ticksSinceMelt >= MELT_INTERVAL && fluidTank.getAmount() < fluidTank.getCapacity()) {
                 int amount = Math.min(ExCompressumConfig.getActive().automation.woodenCrucibleSpeed, solidVolume);
-                fluidTank.fill(currentTargetFluid, amount, false);
+                fluidTank.fill(currentTargetFluid, amount * FluidUnits.MILLIBUCKET, false);
                 solidVolume = Math.max(0, solidVolume - amount);
                 ticksSinceMelt = 0;
                 isDirty = true;
@@ -146,7 +145,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
     public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         solidVolume = tagCompound.getInt("SolidVolume");
-        fluidTank.deserialize(tagCompound.getCompound("FluidTank"));
+        FluidUnits.deserialize(fluidTank, tagCompound.getCompound("FluidTank"), FluidUnits.BUCKET);
         ContainerHelper.loadAllItems(tagCompound, items);
         if (tagCompound.contains("TargetFluid")) {
             currentTargetFluid = Balm.getRegistries().getFluid(new ResourceLocation(tagCompound.getString("TargetFluid")));
@@ -161,7 +160,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
             tagCompound.putString("TargetFluid", Objects.toString(fluidId));
         }
         tagCompound.putInt("SolidVolume", solidVolume);
-        tagCompound.put("FluidTank", fluidTank.serialize());
+        tagCompound.put("FluidTank", FluidUnits.serialize(fluidTank));
         ContainerHelper.saveAllItems(tagCompound, items);
     }
 
@@ -180,7 +179,7 @@ public class WoodenCrucibleBlockEntity extends BalmBlockEntity implements BalmFl
     }
 
     public int getSolidCapacity() {
-        return fluidTank.getCapacity();
+        return FluidUnits.toMillibuckets(fluidTank.getCapacity());
     }
 
     @Override

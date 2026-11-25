@@ -1,6 +1,6 @@
 package net.blay09.mods.excompressum.block;
 
-import net.blay09.mods.balm.api.Balm;
+import net.blay09.mods.excompressum.FluidBucketInteraction;
 import net.blay09.mods.balm.api.container.ContainerUtils;
 import net.blay09.mods.excompressum.block.entity.ModBlockEntities;
 import net.blay09.mods.excompressum.block.entity.WoodenCrucibleBlockEntity;
@@ -73,7 +73,7 @@ public class WoodenCrucibleBlock extends BaseEntityBlock {
                 }
             }
 
-            Balm.getHooks().useFluidTank(state, level, pos, player, hand, hit);
+            FluidBucketInteraction.use(woodenCrucible.getFluidTank(), player, hand);
         }
 
         return InteractionResult.SUCCESS;

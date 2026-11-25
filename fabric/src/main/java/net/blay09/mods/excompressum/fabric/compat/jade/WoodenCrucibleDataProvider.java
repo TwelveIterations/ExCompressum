@@ -1,5 +1,6 @@
 package net.blay09.mods.excompressum.fabric.compat.jade;
 
+import net.blay09.mods.excompressum.FluidUnits;
 import net.blay09.mods.excompressum.ExCompressum;
 import net.blay09.mods.excompressum.block.entity.WoodenCrucibleBlockEntity;
 import net.minecraft.network.chat.Component;
@@ -18,7 +19,7 @@ public class WoodenCrucibleDataProvider implements IBlockComponentProvider {
                 tooltip.add(Component.translatable("tooltip.excompressum.solidVolume", woodenCrucible.getSolidVolume()));
             }
             if (woodenCrucible.getFluidTank().getAmount() > 0f) {
-                tooltip.add(Component.translatable("tooltip.excompressum.fluidVolume", woodenCrucible.getFluidTank().getAmount()));
+                tooltip.add(Component.translatable("tooltip.excompressum.fluidVolume", FluidUnits.toMillibuckets(woodenCrucible.getFluidTank().getAmount())));
             }
         }
     }
