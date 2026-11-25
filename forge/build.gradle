@@ -6,8 +6,6 @@ plugins {
     id "com.modrinth.minotaur"
 }
 
-group = mod_group
-version = mod_version
 
 base {
     archivesName = "${mod_id}-forge-${minecraft_version}"
@@ -24,7 +22,7 @@ legacyForge {
 
     validateAccessTransformers = true
 
-    def at = project(':shared').file('src/main/resources/META-INF/accesstransformer.cfg')
+    def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {
         accessTransformers = ["src/main/resources/META-INF/accesstransformer.cfg"]
     }
@@ -130,7 +128,7 @@ sourceSets {
 
 dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    compileOnly project(":shared")
+    compileOnly project(":common")
 
     implementation("net.blay09.mods:balm-forge:${balm_version}") {
         changing = balm_version.endsWith("SNAPSHOT")
@@ -151,7 +149,7 @@ apply from: rootProject.file('repositories.gradle')
 apply from: 'dependencies.gradle'
 
 tasks.named('compileJava', JavaCompile) {
-    source(project(":shared").sourceSets.main.allSource)
+    source(project(":common").sourceSets.main.allSource)
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
@@ -159,10 +157,10 @@ def replaceProperties = [
         minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
         forge_version: forge_version, forge_version_range: forge_version_range,
         forge_loader_version_range: forge_loader_version_range,
-        mod_id: mod_id, mod_version: mod_version, balm_version_range: balm_version_range,
+        mod_id: mod_id, version: version, balm_version_range: balm_version_range,
 ]
 processResources {
-    from project(":shared").sourceSets.main.resources
+    from project(":common").sourceSets.main.resources
 
     inputs.properties replaceProperties
     replaceProperties.put 'project', project
@@ -192,10 +190,10 @@ publishing {
 
     repositories {
         maven {
-            var releasesRepoUrl = "https://maven.twelveiterations.com/repository/maven-releases/"
-            var snapshotsRepoUrl = "https://maven.twelveiterations.com/repository/maven-snapshots/"
+            var releasesRepoUrl = project.maven_releases
+            var snapshotsRepoUrl = project.maven_snapshots
             url = uri(version.toString().endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl)
-            name = "twelveIterationsNexus"
+            name = "maven"
             credentials(PasswordCredentials)
         }
     }
@@ -215,13 +213,13 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     mainFile.addRequirement("balm")
     mainFile.addEnvironment("Client", "Server")
     project.minecraft_versions.split(',').toList().each { mainFile.addGameVersion(it) }
-    mainFile.releaseType = release_type
+    mainFile.releaseType = curseforge_release_type
 }
 
 modrinth {
     token = project.findProperty("modrinth.token") ?: System.getenv("MODRINTH_TOKEN") ?: "none"
     projectId = project.modrinth_project_id
-    versionType = project.release_type
+    versionType = project.modrinth_release_type
     versionNumber = project.version + "+forge-" + project.minecraft_version
     uploadFile = reobfJar
     changelog = rootProject.file("CHANGELOG.md").text
