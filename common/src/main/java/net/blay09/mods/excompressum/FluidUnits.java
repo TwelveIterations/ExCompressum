@@ -12,7 +12,6 @@ import java.math.BigInteger;
 
 public class FluidUnits {
     public static final int BUCKET = Balm.platform().name().equals("fabric") ? 81000 : 1000;
-    public static final int BOTTLE = BUCKET / 3;
     public static final int MILLIBUCKET = BUCKET / 1000;
 
     public static int toMillibuckets(int amount) {
@@ -20,8 +19,8 @@ public class FluidUnits {
     }
 
     public static void serialize(FluidTank tank, ValueOutput output) {
-        output.putString("Fluid", BuiltInRegistries.FLUID.getKey(tank.getFluid()).toString());
-        output.putLong("Amount", tank.getAmount());
+        output.putString("Fluid", BuiltInRegistries.FLUID.getKey(tank.getFluid(0)).toString());
+        output.putLong("Amount", tank.getAmount(0));
         output.putString("Unit", BUCKET == 81000 ? "droplets" : "millibuckets");
     }
 
@@ -36,6 +35,6 @@ public class FluidUnits {
                 .multiply(BigInteger.valueOf(BUCKET))
                 .divide(BigInteger.valueOf(savedBucketVolume));
         final var fluid = input.getString("Fluid").map(Identifier::tryParse).map(BuiltInRegistries.FLUID::getValue).orElse(Fluids.EMPTY);
-        tank.setFluid(fluid, amount.max(BigInteger.ZERO).min(BigInteger.valueOf(capacity)).intValueExact());
+        tank.setFluid(0, fluid, amount.max(BigInteger.ZERO).min(BigInteger.valueOf(capacity)).intValueExact());
     }
 }
