@@ -2,7 +2,7 @@ package net.blay09.mods.excompressum.block;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.blay09.mods.balm.api.Balm;
+import net.blay09.mods.excompressum.FluidBucketInteraction;
 import net.blay09.mods.balm.api.container.ContainerUtils;
 import net.blay09.mods.excompressum.block.entity.ModBlockEntities;
 import net.blay09.mods.excompressum.block.entity.WoodenCrucibleBlockEntity;
@@ -83,7 +83,9 @@ public class WoodenCrucibleBlock extends BaseEntityBlock {
             return ItemInteractionResult.CONSUME_PARTIAL;
         }
 
-        Balm.getHooks().useFluidTank(state, level, pos, player, hand, blockHitResult);
+        if (FluidBucketInteraction.use(woodenCrucible.getFluidTank(), player, hand)) {
+            return ItemInteractionResult.SUCCESS;
+        }
 
         return super.useItemOn(itemStack, state, level, pos, player, hand, blockHitResult);
     }

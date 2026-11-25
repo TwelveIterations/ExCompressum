@@ -1,5 +1,6 @@
 package net.blay09.mods.excompressum.neoforge.compat.top;
 
+import net.blay09.mods.excompressum.FluidUnits;
 import com.google.common.base.Function;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
@@ -113,7 +114,7 @@ public class TheOneProbeAddon  {
                 info.text(Component.translatable("tooltip.excompressum.solidVolume", tileEntity.getSolidVolume()));
             }
             if (tileEntity.getFluidTank().getAmount() > 0f) {
-                info.text(Component.translatable("tooltip.excompressum.fluidVolume", tileEntity.getFluidTank().getAmount()));
+                info.text(Component.translatable("tooltip.excompressum.fluidVolume", FluidUnits.toMillibuckets(tileEntity.getFluidTank().getAmount())));
             }
         }
 
