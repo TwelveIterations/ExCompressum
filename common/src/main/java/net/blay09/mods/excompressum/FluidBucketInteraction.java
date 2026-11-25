@@ -15,7 +15,7 @@ import net.minecraft.world.level.material.Fluids;
 public class FluidBucketInteraction {
     public static boolean use(FluidTank tank, Player player, InteractionHand hand) {
         ItemStack heldItem = player.getItemInHand(hand);
-        Fluid fluid = heldItem.is(Items.BUCKET) ? tank.getFluid() : BuiltInRegistries.FLUID.stream()
+        Fluid fluid = heldItem.is(Items.BUCKET) ? tank.getFluid(0) : BuiltInRegistries.FLUID.stream()
                 .filter(it -> it.getBucket() == heldItem.getItem()).findFirst().orElse(Fluids.EMPTY);
         if (fluid.isSame(Fluids.EMPTY)) {
             return false;
@@ -27,17 +27,17 @@ public class FluidBucketInteraction {
             return false;
         }
 
-        int transferred = draining ? tank.drain(fluid, FluidUnits.BUCKET, true) : tank.fill(fluid, FluidUnits.BUCKET, true);
+        int transferred = draining ? tank.drain(0, fluid, FluidUnits.BUCKET, true) : tank.fill(0, fluid, FluidUnits.BUCKET, true);
         if (transferred < FluidUnits.BUCKET) {
             return false;
         }
 
         player.setItemInHand(hand, ItemUtils.createFilledResult(heldItem, player, result));
         if (draining) {
-            tank.drain(fluid, FluidUnits.BUCKET, false);
+            tank.drain(0, fluid, FluidUnits.BUCKET, false);
             fluid.getPickupSound().ifPresent(sound -> player.playSound(sound, 1f, 1f));
         } else {
-            tank.fill(fluid, FluidUnits.BUCKET, false);
+            tank.fill(0, fluid, FluidUnits.BUCKET, false);
             player.playSound(SoundEvents.BUCKET_EMPTY, 1f, 1f);
         }
         return true;
